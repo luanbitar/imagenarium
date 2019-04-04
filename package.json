@@ -1,0 +1,15 @@
+{
+  "name": "img-converter",
+  "version": "1.0.0",
+  "description": "Use to handler image formats",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "dasda"
+  },
+  "author": "Luan Bitar <bitar.luan21@gmail.com>",
+  "license": "ISC"
+}

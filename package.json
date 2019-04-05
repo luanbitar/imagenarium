@@ -8,8 +8,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "dasda"
+    "url": "https://github.com/luanbitar/img-converter"
   },
   "author": "Luan Bitar <bitar.luan21@gmail.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "del": "^4.1.0",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-uglify": "^3.0.2"
+  }
 }

@@ -1,20 +1,24 @@
 {
-  "name": "img-converter",
+  "name": "imagenarium",
   "version": "1.0.0",
   "description": "Use to handler image formats",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/luanbitar/img-converter"
+    "url": "https://github.com/luanbitar/imagenarium"
   },
-  "author": "Luan Bitar <bitar.luan21@gmail.com>",
+  "author": {
+    "name": "Luan Bitar",
+    "email": "bitar.luan21@gmail.com"
+  },
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
+    "@babel/register": "^7.4.0",
     "del": "^4.1.0",
     "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0",

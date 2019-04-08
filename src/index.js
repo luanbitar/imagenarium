@@ -1,5 +1,5 @@
 // Convert a Base64-encoded string to a File object
-export const base64StringtoFile = (base64String, filename = 'fileName') => {
+const base64StringtoFile = (base64String, filename = 'fileName') => {
   let arr = base64String.split(',')
   let mime = arr[0].match(/:(.*?);/)[1]
   let bstr = atob(arr[1])
@@ -12,44 +12,39 @@ export const base64StringtoFile = (base64String, filename = 'fileName') => {
 }
 
 // Convert an URL File to Base64-encoded string
-export const URLToBase64 = url => {
-  return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest()
-    xhr.onload = function() {
-      var reader = new FileReader()
-      reader.onloadend = function() {
-        resolve(reader.result)
-      }
-      reader.readAsDataURL(xhr.response)
+const URLToBase64 = url => new Promise((resolve, reject) => {
+  var xhr = new XMLHttpRequest()
+  xhr.onload = function() {
+    var reader = new FileReader()
+    reader.onloadend = function() {
+      resolve(reader.result)
     }
-    xhr.open('GET', url)
-    xhr.responseType = 'blob'
-    xhr.send()
-  })
-}
+    reader.readAsDataURL(xhr.response)
+  }
+  xhr.open('GET', url)
+  xhr.responseType = 'blob'
+  xhr.send()
+})
 
 // Convert an URL File to File
-export const URLToFile = url => {
-  return new Promise(async (resolve, reject) => {
-    const base64 = await URLToBase64(url)
+const URLToFile = url => new Promise((resolve, reject) => {
+  URLToBase64(url).then(base64 => {
     const file = base64StringtoFile(base64)
     resolve(file)
   })
-}
+})
 
 // Convert an image File to Base64-encoded string
-export const FileToBase64 = imageFile => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.addEventListener('load', () => {
-      resolve(reader.result)
-    })
-    reader.readAsDataURL(imageFile)
+const FileToBase64 = imageFile => new Promise((resolve, reject) => {
+  const reader = new FileReader()
+  reader.addEventListener('load', () => {
+    resolve(reader.result)
   })
-}
+  reader.readAsDataURL(imageFile)
+})
 
 // Download an Base64-encoded file
-export const downloadBase64File = (base64Data, filename) => {
+const downloadBase64File = (base64Data, filename) => {
   var element = document.createElement('a')
   element.setAttribute('href', base64Data)
   element.setAttribute('download', filename)
@@ -60,46 +55,55 @@ export const downloadBase64File = (base64Data, filename) => {
 }
 
 // Extract an Base64 Image's File Extension
-export const extractImageFileExtensionFromBase64 = base64Data => {
-  return base64Data.substring('data:image/'.length, base64Data.indexOf('base64'))
-}
+const extractImageFileExtensionFromBase64 = base64Data => base64Data.substring('data:image/'.length, base64Data.indexOf('base64'))
 
 // Base64 Image to Canvas with a Crop
-export const image64toCanvasRef = (canvasRef, image64, pixelCrop) => {
-  return new Promise((resolve, reject) => {
-    const canvas = canvasRef
-    canvas.width = pixelCrop.width
-    canvas.height = pixelCrop.height
-    const ctx = canvas.getContext('2d')
-    const image = new Image()
-    image.src = image64
-    image.onload = function () {
-      ctx.drawImage(
-        image,
-        pixelCrop.x,
-        pixelCrop.y,
-        pixelCrop.width,
-        pixelCrop.height,
-        0,
-        0,
-        pixelCrop.width,
-        pixelCrop.height
-      )
-      resolve(canvas.toDataURL('image/jpeg', 1.0))
-    }
-  })
-}
+const image64toCanvasRef = (canvasRef, image64, pixelCrop) => new Promise((resolve, reject) => {
+  const canvas = canvasRef
+  canvas.width = pixelCrop.width
+  canvas.height = pixelCrop.height
+  const ctx = canvas.getContext('2d')
+  const image = new Image()
+  image.src = image64
+  image.onload = function () {
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    )
+    resolve(canvas.toDataURL('image/jpeg', 1.0))
+  }
+})
 
 // Receives Image File and return an Cropped Image File
-export const imageFileToImageCroppedFile = (imageFile, pixelCrop) => {
-  return new Promise(async (resolve, reject) => {
-    const canvas = document.createElement('canvas')
-    canvas.width = pixelCrop.width
-    canvas.height = pixelCrop.height
-    const base64 = await FileToBase64(imageFile)
-    const croppedBase64 = await image64toCanvasRef(canvas, base64, pixelCrop)
-    const file = base64StringtoFile(croppedBase64, imageFile.name)
-    canvas.remove()
-    resolve(file)
-  })
+const imageFileToImageCroppedFile = (imageFile, pixelCrop) => new Promise((resolve, reject) => {
+  const canvas = document.createElement('canvas')
+  canvas.width = pixelCrop.width
+  canvas.height = pixelCrop.height
+  FileToBase64(imageFile)
+    .then(base64 => image64toCanvasRef(canvas, base64, pixelCrop))
+    .then(croppedBase64 => base64StringtoFile(croppedBase64, imageFile.name))
+    .then(file => {
+      canvas.remove()
+      resolve(file)
+    })
+})
+
+const imagenarium = {
+  URLToFile,
+  imageFileToImageCroppedFile
+}
+
+if (typeof window !== 'undefined' && window) {
+  if (typeof module === 'object' && module.exports) {
+	  module.exports = imagenarium;
+	} else {
+	  window.imagenarium = imagenarium;
+  }
 }

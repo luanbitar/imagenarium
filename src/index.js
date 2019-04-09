@@ -97,6 +97,14 @@ const imageFileToImageCroppedFile = (imageFile, pixelCrop, quality = undefined) 
     })
 })
 
+const sizeInBytesFromBase64 = base64 => {
+  const length = base64.length
+  const lastTwoCharacters = base64.substring(length-2, length)
+  let y = 1
+  if(lastTwoCharacters === '==') y = 2
+  return (length * (3/4)) - y
+}
+
 const imagenarium = {
   URLToFile,
   URLToBase64,
@@ -105,7 +113,8 @@ const imagenarium = {
   imageFileToImageCroppedFile,
   downloadFromBase64,
   extractFileExtensionFromBase64,
-  image64toCanvasRef
+  image64toCanvasRef,
+  sizeInBytesFromBase64
 }
 
 if (typeof window !== 'undefined' && window) {

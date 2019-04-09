@@ -1,15 +1,21 @@
-import { URLToFile, imageFileToImageCroppedFile, FileToBase64, URLToBase64 } from '../../../dist/index'
+import { base64StringtoFile, imageFileToImageCroppedFile, FileToBase64, URLToBase64, sizeInBytesFromBase64, downloadFromBase64 } from '../../../dist/index'
 
-(() => {
-  const url = 'https://picsum.photos/1024/768/?random'
-  const pixelCrop = {
-    x: 0,
-    y: 0,
-    height: 800,
-    width: 800
-  }
-  URLToFile(url)
-    .then(file => imageFileToImageCroppedFile(file, pixelCrop, 0.2))
+(({ url, pixelCrop }) => {
+  const originalImage = document.getElementById('originalImage'),
+        optmizedImage = document.getElementById('optmizedImage')
+
+  URLToBase64(url)
+    .then(b64 => {
+      originalImage.src = b64
+      return base64StringtoFile(b64)
+    })
+    .then(file => imageFileToImageCroppedFile(file, pixelCrop, 0.5))
     .then(cropped => FileToBase64(cropped))
-    .then(console.log)
-})()
+    .then(b64 => {
+      optmizedImage.src=b64
+      console.log('original', sizeInBytesFromBase64(originalImage.src)/1000, 'KB')
+      console.log('optmized', sizeInBytesFromBase64(optmizedImage.src)/1000, 'KB')
+    })
+
+})(data)
+

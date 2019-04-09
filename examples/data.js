@@ -1,5 +1,5 @@
 var data = {
-  url: 'https://picsum.photos/1024/768/',
+  url: 'https://picsum.photos/1024/768/?random',
   pixelCrop: {
     x: 0,
     y: 0,

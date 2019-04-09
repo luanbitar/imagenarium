@@ -1,10 +1,11 @@
 {
-  "name": "imagenarium",
-  "version": "0.0.5",
-  "description": "Use to handler image formats",
-  "main": "dist/index.js",
+  "name": "imagenarium-example-import",
+  "version": "0.0.1",
+  "description": "Example of imagenarium handler with imports",
+  "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
     "del": "^4.1.0",
     "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0",
-    "gulp-uglify": "^3.0.2"
+    "gulp-uglify": "^3.0.2",
+    "gulp-browserify": "^0.5.1"
   }
 }

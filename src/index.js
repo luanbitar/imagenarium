@@ -1,4 +1,5 @@
 // Convert a Base64-encoded string to a File object
+// TODO: rename to Base64ToFile
 const base64StringtoFile = (base64String, filename = 'fileName') => {
   let arr = base64String.split(',')
   let mime = arr[0].match(/:(.*?);/)[1]
@@ -11,29 +12,6 @@ const base64StringtoFile = (base64String, filename = 'fileName') => {
   return new File([u8arr], filename, { type: mime })
 }
 
-// Convert an URL File to Base64-encoded string
-const URLToBase64 = url => new Promise((resolve, reject) => {
-  var xhr = new XMLHttpRequest()
-  xhr.onload = function() {
-    var reader = new FileReader()
-    reader.onloadend = function() {
-      resolve(reader.result)
-    }
-    reader.readAsDataURL(xhr.response)
-  }
-  xhr.open('GET', url)
-  xhr.responseType = 'blob'
-  xhr.send()
-})
-
-// Convert an URL File to File
-const URLToFile = url => new Promise((resolve, reject) => {
-  URLToBase64(url).then(base64 => {
-    const file = base64StringtoFile(base64)
-    resolve(file)
-  })
-})
-
 // Convert an image File to Base64-encoded string
 const FileToBase64 = imageFile => new Promise((resolve, reject) => {
   const reader = new FileReader()
@@ -43,8 +21,30 @@ const FileToBase64 = imageFile => new Promise((resolve, reject) => {
   reader.readAsDataURL(imageFile)
 })
 
+// Convert an URL File to Base64-encoded string
+const URLToBase64 = url => new Promise((resolve, reject) => {
+  fetch(url)
+    .then(res => res.blob())
+    .then(blob => {
+      var reader = new FileReader()
+      reader.onloadend = function() {
+        resolve(reader.result)
+      }
+      reader.readAsDataURL(blob)
+    })
+})
+
+// Convert an URL File to File
+const URLToFile = url => new Promise((resolve, reject) => {
+  URLToBase64(url)
+    .then(base64 => {
+      const file = base64StringtoFile(base64)
+      resolve(file)
+    })
+})
+
 // Download an Base64-encoded file
-const downloadBase64File = (base64Data, filename) => {
+const downloadFromBase64 = (base64Data, filename) => {
   var element = document.createElement('a')
   element.setAttribute('href', base64Data)
   element.setAttribute('download', filename)
@@ -55,10 +55,11 @@ const downloadBase64File = (base64Data, filename) => {
 }
 
 // Extract an Base64 Image's File Extension
-const extractImageFileExtensionFromBase64 = base64Data => base64Data.substring('data:image/'.length, base64Data.indexOf('base64'))
+const extractFileExtensionFromBase64 = base64Data => base64Data.substring('data:image/'.length, base64Data.indexOf('base64'))
 
 // Base64 Image to Canvas with a Crop
-const image64toCanvasRef = (canvasRef, image64, pixelCrop) => new Promise((resolve, reject) => {
+// TODO: rename to Base64ToCanvas
+const image64toCanvasRef = (canvasRef, image64, pixelCrop, quality = 1.0) => new Promise((resolve, reject) => {
   const canvas = canvasRef
   canvas.width = pixelCrop.width
   canvas.height = pixelCrop.height
@@ -77,17 +78,18 @@ const image64toCanvasRef = (canvasRef, image64, pixelCrop) => new Promise((resol
       pixelCrop.width,
       pixelCrop.height
     )
-    resolve(canvas.toDataURL('image/jpeg', 1.0))
+    resolve(canvas.toDataURL('image/jpeg', quality))
   }
 })
 
 // Receives Image File and return an Cropped Image File
-const imageFileToImageCroppedFile = (imageFile, pixelCrop) => new Promise((resolve, reject) => {
+// TODO: rename to FileToCroppedFile
+const imageFileToImageCroppedFile = (imageFile, pixelCrop, quality = undefined) => new Promise((resolve, reject) => {
   const canvas = document.createElement('canvas')
   canvas.width = pixelCrop.width
   canvas.height = pixelCrop.height
   FileToBase64(imageFile)
-    .then(base64 => image64toCanvasRef(canvas, base64, pixelCrop))
+    .then(base64 => image64toCanvasRef(canvas, base64, pixelCrop, quality))
     .then(croppedBase64 => base64StringtoFile(croppedBase64, imageFile.name))
     .then(file => {
       canvas.remove()
@@ -97,7 +99,13 @@ const imageFileToImageCroppedFile = (imageFile, pixelCrop) => new Promise((resol
 
 const imagenarium = {
   URLToFile,
-  imageFileToImageCroppedFile
+  URLToBase64,
+  FileToBase64,
+  base64StringtoFile,
+  imageFileToImageCroppedFile,
+  downloadFromBase64,
+  extractFileExtensionFromBase64,
+  image64toCanvasRef
 }
 
 if (typeof window !== 'undefined' && window) {

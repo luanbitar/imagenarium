@@ -1,7 +1,7 @@
 import { base64StringtoFile, imageFileToImageCroppedFile, FileToBase64, URLToBase64, sizeInBytesFromBase64, downloadFromBase64 } from '../../../dist/index'
 
 (({ url, pixelCrop }) => {
-  const originalImage = document.getElementById('originalImage'),
+  let originalImage = document.getElementById('originalImage'),
         optmizedImage = document.getElementById('optmizedImage')
 
   URLToBase64(url)

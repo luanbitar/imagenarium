@@ -1,6 +1,5 @@
 // Convert a Base64-encoded string to a File object
-// TODO: rename to Base64ToFile
-const base64StringtoFile = (base64String, filename = 'fileName') => {
+const Base64ToFile = (base64String, filename = 'fileName') => {
   let arr = base64String.split(',')
   let mime = arr[0].match(/:(.*?);/)[1]
   let bstr = atob(arr[1])
@@ -38,13 +37,13 @@ const URLToBase64 = url => new Promise((resolve, reject) => {
 const URLToFile = url => new Promise((resolve, reject) => {
   URLToBase64(url)
     .then(base64 => {
-      const file = base64StringtoFile(base64)
+      const file = Base64ToFile(base64)
       resolve(file)
     })
 })
 
 // Download an Base64-encoded file
-const downloadFromBase64 = (base64Data, filename) => {
+const DownloadFromBase64 = (base64Data, filename) => {
   var element = document.createElement('a')
   element.setAttribute('href', base64Data)
   element.setAttribute('download', filename)
@@ -58,8 +57,7 @@ const downloadFromBase64 = (base64Data, filename) => {
 const extractFileExtensionFromBase64 = base64Data => base64Data.substring('data:image/'.length, base64Data.indexOf('base64'))
 
 // Base64 Image to Canvas with a Crop
-// TODO: rename to Base64ToCanvas
-const image64toCanvasRef = (canvasRef, image64, pixelCrop, quality = 1.0) => new Promise((resolve, reject) => {
+const Base64ToCanvas = (canvasRef, image64, pixelCrop, quality = 1.0) => new Promise((resolve, reject) => {
   const canvas = canvasRef
   canvas.width = pixelCrop.width
   canvas.height = pixelCrop.height
@@ -83,21 +81,20 @@ const image64toCanvasRef = (canvasRef, image64, pixelCrop, quality = 1.0) => new
 })
 
 // Receives Image File and return an Cropped Image File
-// TODO: rename to FileToCroppedFile
-const imageFileToImageCroppedFile = (imageFile, pixelCrop, quality = undefined) => new Promise((resolve, reject) => {
+const FileToCroppedFile = (imageFile, pixelCrop, quality = undefined) => new Promise((resolve, reject) => {
   const canvas = document.createElement('canvas')
   canvas.width = pixelCrop.width
   canvas.height = pixelCrop.height
   FileToBase64(imageFile)
-    .then(base64 => image64toCanvasRef(canvas, base64, pixelCrop, quality))
-    .then(croppedBase64 => base64StringtoFile(croppedBase64, imageFile.name))
+    .then(base64 => Base64ToCanvas(canvas, base64, pixelCrop, quality))
+    .then(croppedBase64 => Base64ToFile(croppedBase64, imageFile.name))
     .then(file => {
       canvas.remove()
       resolve(file)
     })
 })
 
-const sizeInBytesFromBase64 = base64 => {
+const SizeInBytesFromBase64 = base64 => {
   const length = base64.length
   const lastTwoCharacters = base64.substring(length-2, length)
   let y = 1
@@ -106,15 +103,15 @@ const sizeInBytesFromBase64 = base64 => {
 }
 
 const imagenarium = {
-  URLToFile,
-  URLToBase64,
+  Base64ToFile,
   FileToBase64,
-  base64StringtoFile,
-  imageFileToImageCroppedFile,
-  downloadFromBase64,
+  URLToBase64,
+  URLToFile,
+  FileToCroppedFile,
+  DownloadFromBase64,
   extractFileExtensionFromBase64,
-  image64toCanvasRef,
-  sizeInBytesFromBase64
+  Base64ToCanvas,
+  SizeInBytesFromBase64
 }
 
 if (typeof window !== 'undefined' && window) {

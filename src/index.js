@@ -114,10 +114,26 @@ const imagenarium = {
   SizeInBytesFromBase64
 }
 
-if (typeof window !== 'undefined' && window) {
-  if (typeof module === 'object' && module.exports) {
-	  module.exports = imagenarium;
-	} else {
-	  window.imagenarium = imagenarium;
-  }
+
+try {
+  module.exports = imagenarium
+} catch (e) {
+  // window.imagenarium = imagenarium
+  // console.log(e instanceof ReferenceError)
+  // if (e instanceof ReferenceError) {
+  //   console.log('global')
+  //   window.imagenarium = imagenarium
+  // }
 }
+// if(module !== undefined && typeof module === 'object' && module.exports) {
+//   module.exports = imagenarium
+// } else {
+//   window.imagenarium = imagenarium
+// }
+// if (typeof window !== 'undefined' && window) {
+//   if (typeof module === 'object' && module.exports) {
+//     module.exports = imagenarium
+// 	} else {
+// 	  window.imagenarium = imagenarium
+//   }
+// }

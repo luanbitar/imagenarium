@@ -1,3 +1,3 @@
 console.log(data)
-// URLToFile(data.url)
-//   .then(console.log)
+imagenarium.URLToBase64(data.url)
+  .then(console.log)

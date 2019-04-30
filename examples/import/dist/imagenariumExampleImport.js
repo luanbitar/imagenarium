@@ -1,5 +1,146 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-"use strict";function _typeof(e){return(_typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}var base64StringtoFile=function(e){for(var t=1<arguments.length&&void 0!==arguments[1]?arguments[1]:"fileName",n=e.split(","),o=n[0].match(/:(.*?);/)[1],i=atob(n[1]),a=i.length,r=new Uint8Array(a);a--;)r[a]=i.charCodeAt(a);return new File([r],t,{type:o})},FileToBase64=function(o){return new Promise(function(e,t){var n=new FileReader;n.addEventListener("load",function(){e(n.result)}),n.readAsDataURL(o)})},URLToBase64=function(t){return new Promise(function(n,e){fetch(t).then(function(e){return e.blob()}).then(function(e){var t=new FileReader;t.onloadend=function(){n(t.result)},t.readAsDataURL(e)})})},URLToFile=function(t){return new Promise(function(n,e){URLToBase64(t).then(function(e){var t=base64StringtoFile(e);n(t)})})},downloadFromBase64=function(e,t){var n=document.createElement("a");n.setAttribute("href",e),n.setAttribute("download",t),n.style.display="none",document.body.appendChild(n),n.click(),document.body.removeChild(n)},extractFileExtensionFromBase64=function(e){return e.substring("data:image/".length,e.indexOf("base64"))},image64toCanvasRef=function(a,r,u){var s=3<arguments.length&&void 0!==arguments[3]?arguments[3]:1;return new Promise(function(e,t){var n=a;n.width=u.width,n.height=u.height;var o=n.getContext("2d"),i=new Image;i.src=r,i.onload=function(){o.drawImage(i,u.x,u.y,u.width,u.height,0,0,u.width,u.height),e(n.toDataURL("image/jpeg",s))}})},imageFileToImageCroppedFile=function(o,i){var a=2<arguments.length&&void 0!==arguments[2]?arguments[2]:void 0;return new Promise(function(t,e){var n=document.createElement("canvas");n.width=i.width,n.height=i.height,FileToBase64(o).then(function(e){return image64toCanvasRef(n,e,i,a)}).then(function(e){return base64StringtoFile(e,o.name)}).then(function(e){n.remove(),t(e)})})},sizeInBytesFromBase64=function(e){var t=e.length,n=1;return"=="===e.substring(t-2,t)&&(n=2),.75*t-n},imagenarium={URLToFile:URLToFile,URLToBase64:URLToBase64,FileToBase64:FileToBase64,base64StringtoFile:base64StringtoFile,imageFileToImageCroppedFile:imageFileToImageCroppedFile,downloadFromBase64:downloadFromBase64,extractFileExtensionFromBase64:extractFileExtensionFromBase64,image64toCanvasRef:image64toCanvasRef,sizeInBytesFromBase64:sizeInBytesFromBase64};"undefined"!=typeof window&&window&&("object"===("undefined"==typeof module?"undefined":_typeof(module))&&module.exports?module.exports=imagenarium:window.imagenarium=imagenarium);
-},{}],2:[function(require,module,exports){
-"use strict";var _index=require("../../../dist/index");!function(e){var n=e.url,i=e.pixelCrop,t=document.getElementById("originalImage"),o=document.getElementById("optmizedImage");(0,_index.URLToBase64)(n).then(function(e){return t.src=e,(0,_index.base64StringtoFile)(e)}).then(function(e){return(0,_index.imageFileToImageCroppedFile)(e,i,.5)}).then(function(e){return(0,_index.FileToBase64)(e)}).then(function(e){o.src=e,console.log("original",(0,_index.sizeInBytesFromBase64)(t.src)/1e3,"KB"),console.log("optmized",(0,_index.sizeInBytesFromBase64)(o.src)/1e3,"KB")})}(data);
-},{"../../../dist/index":1}]},{},[2])
+"use strict";var _index=require("../../../src/index");!function(e){var n=e.url,i=e.pixelCrop,o=document.getElementById("originalImage"),t=document.getElementById("optmizedImage");console.log(_index.URLToBase64),(0,_index.URLToBase64)(n).then(function(e){return o.src=e,(0,_index.Base64ToFile)(e)}).then(function(e){return(0,_index.FileToCroppedFile)(e,i,.5)}).then(function(e){return(0,_index.FileToBase64)(e)}).then(function(e){t.src=e,console.log("original",(0,_index.SizeInBytesFromBase64)(o.src)/1e3,"KB"),console.log("optmized",(0,_index.SizeInBytesFromBase64)(t.src)/1e3,"KB")})}(data);
+},{"../../../src/index":2}],2:[function(require,module,exports){
+// Convert a Base64-encoded string to a File object
+const Base64ToFile = (base64String, filename = 'fileName') => {
+  let arr = base64String.split(',')
+  let mime = arr[0].match(/:(.*?);/)[1]
+  let bstr = atob(arr[1])
+  let n = bstr.length
+  let u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new File([u8arr], filename, { type: mime })
+}
+
+// Convert an image File to Base64-encoded string
+const FileToBase64 = imageFile => new Promise((resolve, reject) => {
+  const reader = new FileReader()
+  reader.addEventListener('load', () => {
+    resolve(reader.result)
+  })
+  reader.readAsDataURL(imageFile)
+})
+
+// Convert an URL File to Base64-encoded string
+const URLToBase64 = url => new Promise((resolve, reject) => {
+  fetch(url)
+    .then(res => res.blob())
+    .then(blob => {
+      var reader = new FileReader()
+      reader.onloadend = function() {
+        resolve(reader.result)
+      }
+      reader.readAsDataURL(blob)
+    })
+})
+
+// Convert an URL File to File
+const URLToFile = url => new Promise((resolve, reject) => {
+  URLToBase64(url)
+    .then(base64 => {
+      const file = Base64ToFile(base64)
+      resolve(file)
+    })
+})
+
+// Download an Base64-encoded file
+const DownloadFromBase64 = (base64Data, filename) => {
+  var element = document.createElement('a')
+  element.setAttribute('href', base64Data)
+  element.setAttribute('download', filename)
+  element.style.display = 'none'
+  document.body.appendChild(element)
+  element.click()
+  document.body.removeChild(element)
+}
+
+// Extract an Base64 Image's File Extension
+const extractFileExtensionFromBase64 = base64Data => base64Data.substring('data:image/'.length, base64Data.indexOf('base64'))
+
+// Base64 Image to Canvas with a Crop
+const Base64ToCanvas = (canvasRef, image64, pixelCrop, quality = 1.0) => new Promise((resolve, reject) => {
+  const canvas = canvasRef
+  canvas.width = pixelCrop.width
+  canvas.height = pixelCrop.height
+  const ctx = canvas.getContext('2d')
+  const image = new Image()
+  image.src = image64
+  image.onload = function () {
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    )
+    resolve(canvas.toDataURL('image/jpeg', quality))
+  }
+})
+
+// Receives Image File and return an Cropped Image File
+const FileToCroppedFile = (imageFile, pixelCrop, quality = undefined) => new Promise((resolve, reject) => {
+  const canvas = document.createElement('canvas')
+  canvas.width = pixelCrop.width
+  canvas.height = pixelCrop.height
+  FileToBase64(imageFile)
+    .then(base64 => Base64ToCanvas(canvas, base64, pixelCrop, quality))
+    .then(croppedBase64 => Base64ToFile(croppedBase64, imageFile.name))
+    .then(file => {
+      canvas.remove()
+      resolve(file)
+    })
+})
+
+const SizeInBytesFromBase64 = base64 => {
+  const length = base64.length
+  const lastTwoCharacters = base64.substring(length-2, length)
+  let y = 1
+  if(lastTwoCharacters === '==') y = 2
+  return (length * (3/4)) - y
+}
+
+const imagenarium = {
+  Base64ToFile,
+  FileToBase64,
+  URLToBase64,
+  URLToFile,
+  FileToCroppedFile,
+  DownloadFromBase64,
+  extractFileExtensionFromBase64,
+  Base64ToCanvas,
+  SizeInBytesFromBase64
+}
+
+
+console.log('importing...')
+try {
+  module.exports = imagenarium
+  console.log('exported')
+  
+} catch (e) {
+  // window.imagenarium = imagenarium
+  // console.log(e instanceof ReferenceError)
+  // if (e instanceof ReferenceError) {
+  //   console.log('global')
+  //   window.imagenarium = imagenarium
+  // }
+}
+// if(module !== undefined && typeof module === 'object' && module.exports) {
+//   module.exports = imagenarium
+// } else {
+//   window.imagenarium = imagenarium
+// }
+// if (typeof window !== 'undefined' && window) {
+//   if (typeof module === 'object' && module.exports) {
+//     module.exports = imagenarium
+// 	} else {
+// 	  window.imagenarium = imagenarium
+//   }
+// }
+},{}]},{},[1])

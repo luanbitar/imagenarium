@@ -7,3 +7,9 @@ var data = {
     height: 768
   }
 }
+
+try {
+  module.exports = data
+} catch (e) {
+  
+}

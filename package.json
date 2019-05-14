@@ -44,5 +44,9 @@
     "optimize-image",
     "handle",
     "convert-image"
-  ]
+  ],
+  "dependencies": {
+    "axios": "^0.18.0",
+    "file-api": "^0.10.4"
+  }
 }

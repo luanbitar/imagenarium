@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 // Convert a Base64-encoded string to a File object
 const Base64ToFile = (base64String, filename = 'fileName') => {
   let arr = base64String.split(',')
@@ -22,14 +24,10 @@ const FileToBase64 = imageFile => new Promise((resolve, reject) => {
 
 // Convert an URL File to Base64-encoded string
 const URLToBase64 = url => new Promise((resolve, reject) => {
-  fetch(url)
-    .then(res => res.blob())
-    .then(blob => {
-      var reader = new FileReader()
-      reader.onloadend = function() {
-        resolve(reader.result)
-      }
-      reader.readAsDataURL(blob)
+  axios.get(url, { responseType: 'blob' })
+    .then(({ data }) => {
+      console.log(Buffer.isBuffer())
+      resolve(Buffer.from(data).toString('base64'))
     })
 })
 
@@ -117,23 +115,7 @@ const imagenarium = {
 
 try {
   module.exports = imagenarium
+  if(window) window.imagenarium = imagenarium
 } catch (e) {
-  // window.imagenarium = imagenarium
-  // console.log(e instanceof ReferenceError)
-  // if (e instanceof ReferenceError) {
-  //   console.log('global')
-  //   window.imagenarium = imagenarium
-  // }
+  throw e
 }
-// if(module !== undefined && typeof module === 'object' && module.exports) {
-//   module.exports = imagenarium
-// } else {
-//   window.imagenarium = imagenarium
-// }
-// if (typeof window !== 'undefined' && window) {
-//   if (typeof module === 'object' && module.exports) {
-//     module.exports = imagenarium
-// 	} else {
-// 	  window.imagenarium = imagenarium
-//   }
-// }
